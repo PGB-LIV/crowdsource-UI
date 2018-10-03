@@ -56,7 +56,7 @@ getStatsDfExistingDecoy <- function(df_FP_only){
   df_FP_only <- transform(df_FP_only, TP = Hits.Above.Tresh - 2*Cum.FP)
   df_FP_only <- transform(df_FP_only, FDR = Cum.FP / (TP  + Cum.FP))
   df_FP_only$Q.val <- return_Q_Val(df_FP_only$FDR,nrow(df_FP_only))
-  
+  write.csv(df_FP_only,'dfStat.csv')
   return(df_FP_only)
 }
 
@@ -129,7 +129,7 @@ get_current_dataSet <- function(in_File,passedUrlData,queryLen){
         filteredPsm <- handleFileMzid('./dat/urlMzIdentML.mzid')
         
         returnList <- list("pep" = filteredPsm, "mod" = getMzidMod('./dat/urlMzIdentML.mzid',filteredPsm))
-        file.remove('./dat/urlMzIdentML.mzid') # delete the temp file
+        #file.remove('./dat/urlMzIdentML.mzid') # delete the temp file
         return(returnList)
         
       }else{
@@ -218,8 +218,8 @@ handleFileMzid <- function(targetFile){
   mzid_df <- filter(mzid_df , rank == 1) #subset only rank 1
   
   #subet for unqiue peptides
-  colnames(mzid_df )[colnames(mzid_df )==colnames(score(mzid)[2])] <- "ScoreFilterCol"
-  mzid_df  <- mzid_df  %>% group_by(sequence) %>% slice(which.max(ScoreFilterCol))
+  #colnames(mzid_df )[colnames(mzid_df )==colnames(score(mzid)[2])] <- "ScoreFilterCol"
+  #mzid_df  <- mzid_df  %>% group_by(sequence) %>% slice(which.max(ScoreFilterCol))
   
   #Format the cols for the app
   colnames(mzid_df)[colnames(mzid_df)=="ScoreFilterCol"] <- colnames(score(mzid)[2])
@@ -285,7 +285,7 @@ handleFileCsv <- function(in_File){
   uploaded_df$Peptide = toupper(uploaded_df$Peptide) #upper case the enitre col
   try(uploaded_df <- filter(uploaded_df , Rank == 1),silent = TRUE) #subset only rank 1
   try(uploaded_df <- filter(uploaded_df , rank == 1),silent = TRUE)
-  uploaded_df <- getFilteredUniqueDfPep(uploaded_df) #filter for best scoring peptide
+  #uploaded_df <- getFilteredUniqueDfPep(uploaded_df) #filter for best scoring peptide
   return(uploaded_df)
 }
 
@@ -570,4 +570,7 @@ getInitScoreCol <- function(df){
   
   return(NULL)
 }
+
+
+
 
