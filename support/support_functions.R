@@ -410,7 +410,6 @@ returnCurrentServerDF <- function(current_dataSet,col,decoyString){
   }
   returnPepDf <- cbind.data.frame(returnPepDf,statsDf) #Combine pep and stats df
   returnList <- list("pep" = returnPepDf, "mod" = current_dataSet()$mod) #return all
-  write.csv(returnPepDf,"ReturnDF.csv")
   return(returnList)
   
 }
