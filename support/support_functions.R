@@ -56,7 +56,6 @@ getStatsDfExistingDecoy <- function(df_FP_only){
   df_FP_only <- transform(df_FP_only, TP = Hits.Above.Tresh - 2*Cum.FP)
   df_FP_only <- transform(df_FP_only, FDR = Cum.FP / (TP  + Cum.FP))
   df_FP_only$Q.val <- return_Q_Val(df_FP_only$FDR,nrow(df_FP_only))
-  write.csv(df_FP_only,'dfStat.csv')
   return(df_FP_only)
 }
 
@@ -214,7 +213,7 @@ handleFileMzid <- function(targetFile){
   print(targetFile)
   mzid <- openIDfile(targetFile)
   
-  mzid_df <- merge(psms(mzid), score(mzid), by="spectrumID")  #merge by spectrumID
+  mzid_df <- cbind(psms(mzid), score(mzid)[-1]) # col bind the two dataframes (psms with scores leaving out the specID from the score df)
   mzid_df <- filter(mzid_df , rank == 1) #subset only rank 1
   
   #subet for unqiue peptides
@@ -227,7 +226,7 @@ handleFileMzid <- function(targetFile){
   
   # Add extra columns
   mzid_df <- transform(mzid_df, ppm = ((m.z - calculatedMassToCharge)*1000000)/m.z) # Add a col for ppm
-
+  
   return(mzid_df)
 }
 
@@ -283,6 +282,7 @@ handleFileCsv <- function(in_File){
   
   uploaded_df <- getFormtedColDf(uploaded_df) #Rename cols
   uploaded_df$Peptide = toupper(uploaded_df$Peptide) #upper case the enitre col
+  
   try(uploaded_df <- filter(uploaded_df , Rank == 1),silent = TRUE) #subset only rank 1
   try(uploaded_df <- filter(uploaded_df , rank == 1),silent = TRUE)
   #uploaded_df <- getFilteredUniqueDfPep(uploaded_df) #filter for best scoring peptide
@@ -410,6 +410,7 @@ returnCurrentServerDF <- function(current_dataSet,col,decoyString){
   }
   returnPepDf <- cbind.data.frame(returnPepDf,statsDf) #Combine pep and stats df
   returnList <- list("pep" = returnPepDf, "mod" = current_dataSet()$mod) #return all
+  write.csv(returnPepDf,"ReturnDF.csv")
   return(returnList)
   
 }
@@ -570,7 +571,6 @@ getInitScoreCol <- function(df){
   
   return(NULL)
 }
-
 
 
 
